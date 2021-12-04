@@ -2,12 +2,16 @@
 #include "Adafruit_NeoPixel.h"
 
 #define brightPin A0
+#define WAIT_TIME 1500 // время которое ждем после срабатывания выключения
+#define STEP_TIME 1000 // скорость анимации следующей ступеньки
+#define IR_PIN 9
 
 constexpr bool bIsAutoBright = true;
 
 constexpr int motionStart = 2;
 constexpr int motionEnd = 3;
 static unsigned long stairTimer = 0;
+static unsigned long irTimer = 0;
 constexpr int waitTimeout = 15 * 1000;
 
 constexpr int nLed = 30;
@@ -29,9 +33,11 @@ enum effects
 {
     white = 0,
     red,
-    green,
-    blue,
+    orange,
     yellow,
+    green,
+    cyan,
+    blue,
     puprle,
     rainbow,
     randomize,
@@ -39,22 +45,40 @@ enum effects
     effects_count
 };
 
-static effects curEffect = effects::randomize;
-
-uint32_t colorCodes[7] =
+enum Codes
 {
-    0xff0000, 0xff9900, 0xffff00,  0x00ff00, 
-    0x00ffff, 0x0000ff, 0xff00ff
+    cWhite,
+    cRed,
+    cOrange,
+    cYellow,
+    cGreen,
+    cCyan,
+    cBlue,
+    cPurple,
+    cRainbow,
+    cRandom,
+    cBrightnessUp,
+    cBrightnessDown,
+    cPrevEffect,
+    cNextEffect,
+    cNone
 };
 
+static effects curEffect = effects::randomize;
 enum Colors : uint32_t
 {
     Red = 0xff0000,
-    Orange = 0xff7700, 
+    Orange = 0xff9900, 
     Yellow = 0xffff00, 
     Green = 0x00ff00, 
     Cyan = 0x00ffff, 
     Blue = 0x0000ff, 
     Purple = 0xff00ff,
     White = 0xffffff
+};
+
+uint32_t colorCodes[7] =
+{
+    Colors::Red, Colors::Orange, Colors::Yellow,  Colors::Green, 
+    Colors::Cyan, Colors::Blue, Colors::Purple
 };

@@ -1,7 +1,13 @@
 #include <Arduino.h>
 #include "globals.h"
 #include "stairs.h"
+#include "ir_Remote.h"
 
+/*
+ * Управляет всеми ступеньками лестницы
+ * from Down - снизу-вверх или сверху-вниз
+ * turnOn - включение или выключение
+ */
 void lightStairs(bool fromDown, bool turnOn)
 {
   int startIndex = fromDown ? 0 : nSteps - 1;
@@ -13,7 +19,7 @@ void lightStairs(bool fromDown, bool turnOn)
     int lastLed = startIndex * stepLed + stepLed;
     
     e_run(firstLed, lastLed, turnOn);
-    delay(300);
+    delay(STEP_TIME);
 
     startIndex += fromDown ? 1 : -1;
   }
@@ -24,6 +30,9 @@ void lightStairs(bool fromDown, bool turnOn)
   }
 }
 
+/*
+ * Управляет яркостью всей лестницы
+ */
 void configureBright()
 {
   if (!bIsAutoBright)
@@ -38,6 +47,9 @@ void configureBright()
   strip.show();
 }
 
+/*
+ * Управляет датчиками движения
+ */
 void workSensors()
 {
   // на лестнице кто то есть
@@ -48,14 +60,14 @@ void workSensors()
       Serial.println("конец - Поднялись");
       lightStairs(true, false); // выкл ступеньки 0 - N
       state = states::wait;
-      delay(1000);
+      delay(WAIT_TIME);
     }
     else if (digitalRead(motionStart) && state == states::toDown) // .. спустился
     {
       Serial.println("конец - Спустились");
       lightStairs(false, false); // выкл ступеньки N - 0 
       state = states::wait;
-      delay(1000);
+      delay(WAIT_TIME);
     }
   }
 
@@ -84,15 +96,54 @@ void workSensors()
   }
 }
 
+/*
+ * Управляет текущими настройками,
+ * которые получает с ИК-пульта
+ */
+void workRemoteControl()
+{
+  if (millis() - irTimer < 1000)
+  {
+    return;
+  }
+
+  irTimer = millis();
+  Codes code = IR::readCode();
+
+  if (code == Codes::cNone)
+    return;
+
+  if (code == cBrightnessUp)
+    strip.setBrightness(strip.getBrightness() + 30);
+  else if (code == cBrightnessDown)
+    strip.setBrightness(strip.getBrightness() - 30);
+  else if (code == cPrevEffect)
+    setPrevEffect();
+  else if (code == cNextEffect)
+    setNextEffect();  
+  else
+  {  
+    curEffect = (effects)code;
+    for (int i=0; i < 2; ++i)
+    {
+      e_run(0, stepLed, true);
+      delay(STEP_TIME);
+      e_run(0, stepLed, false);
+      delay(STEP_TIME);
+    }
+  }
+}
+
 void setup() {
   randomSeed(analogRead(1));
   Serial.begin(9600);
   strip.begin();
+  recv.enableIRIn();
   e_offAll();
 }
 
 void loop() {
   configureBright();
   workSensors();
-  delay(100);
+  workRemoteControl();
 }

@@ -52,7 +52,14 @@ void setNextEffect()
 {
     curEffect = effects(curEffect + 1);
     if (curEffect == effects_count)
-        curEffect = effects(0);
+        curEffect = white;
+}
+
+void setPrevEffect() 
+{
+    curEffect = effects(curEffect - 1);
+    if (curEffect == white - 1)
+        curEffect = (effects)(effects_count - 1);
 }
 
 // запускает установленный эффект
@@ -74,14 +81,20 @@ void e_run(int from, int to, bool turnOn)
     case effects::red:
         e_colorize(from, to, uint32_t(Colors::Red));
         break;
-    case effects::green:
-        e_colorize(from, to, uint32_t(Colors::Green));
-        break;
-    case effects::blue:
-        e_colorize(from, to, uint32_t(Colors::Blue));
+    case effects::orange:
+        e_colorize(from, to, uint32_t(Colors::Orange));
         break;
     case effects::yellow:
         e_colorize(from, to, uint32_t(Colors::Yellow));
+        break;
+    case effects::green:
+        e_colorize(from, to, uint32_t(Colors::Green));
+        break;
+    case effects::cyan:
+        e_colorize(from, to, uint32_t(Colors::Cyan));
+        break;
+    case effects::blue:
+        e_colorize(from, to, uint32_t(Colors::Blue));
         break;
     case effects::puprle:
         e_colorize(from, to, uint32_t(Colors::Purple));
