@@ -11,6 +11,48 @@ void e_colorize(int from, int to, uint32_t color)
   strip.show();
 }
 
+// выключить все
+void e_offAll()
+{
+    uint32_t c = Adafruit_NeoPixel::Color(0,0,0);
+    for (int i = 0; i < nLed; ++i)
+    {
+        strip.setPixelColor(i, c);
+    }
+    strip.show();
+}
+
+// зеленый змей по всей лестнице
+void e_greenSnake()
+{
+    e_offAll();
+    
+    int snakeLen = stepLed;
+    int brightStep = 50;
+    uint32_t* snake = new uint32_t[snakeLen];
+    int snakeSec = snakeLen / 3;
+
+    for (int i = 0; i < snakeLen; i += snakeSec)
+    {
+        uint8_t br = i == 0 ? 10 : brightStep * (i / snakeSec);
+        Serial.println(br);
+        uint32_t _color = Adafruit_NeoPixel::ColorHSV(21845, 255, br);
+        for (int pixel = 0; pixel < snakeSec; ++pixel)
+            snake[i+pixel] = _color;
+    }
+
+    for (int k = 0; k <= nLed; ++k)
+    {
+        strip.clear();
+        for (int i=0; i < snakeLen; ++i)
+            strip.setPixelColor(k+i, snake[i]);
+        strip.show();
+        delay(SNAKE_SPEED);
+    }
+
+    delete[] snake;
+}
+
 // плавное угасание
 void e_fadeAll()
 {
@@ -25,17 +67,6 @@ void e_fadeAll()
         strip.show();
     }
     strip.setBrightness(prevValue);
-}
-
-// выключить все
-void e_offAll()
-{
-    uint32_t c = Adafruit_NeoPixel::Color(0,0,0);
-    for (int i = 0; i < nLed; ++i)
-    {
-        strip.setPixelColor(i, c);
-    }
-    strip.show();
 }
 
 // включить все

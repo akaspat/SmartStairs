@@ -4,6 +4,7 @@
 #define brightPin A0
 #define WAIT_TIME 1500 // время которое ждем после срабатывания выключения
 #define STEP_TIME 1000 // скорость анимации следующей ступеньки
+#define SNAKE_SPEED 100 // передвижений змеи на 1 светодиод
 #define IR_PIN 9
 
 constexpr bool bIsAutoBright = true;
@@ -19,7 +20,7 @@ constexpr int8_t pinLed = 12;
 constexpr int nSteps = 5;
 constexpr int stepLed = 6;
 
-Adafruit_NeoPixel strip(nLed, pinLed, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel strip(1800, pinLed, NEO_GRB + NEO_KHZ800);
 
 enum states
 {
@@ -57,10 +58,10 @@ enum Codes
     cPurple,
     cRainbow,
     cRandom,
-    cBrightnessUp,
-    cBrightnessDown,
     cPrevEffect,
     cNextEffect,
+    cSetModeByStep,
+    cAnimateAllStair,
     cNone
 };
 
@@ -82,3 +83,5 @@ uint32_t colorCodes[7] =
     Colors::Red, Colors::Orange, Colors::Yellow,  Colors::Green, 
     Colors::Cyan, Colors::Blue, Colors::Purple
 };
+
+bool modeByStep = true;

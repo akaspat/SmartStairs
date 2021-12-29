@@ -13,20 +13,25 @@ void lightStairs(bool fromDown, bool turnOn)
   int startIndex = fromDown ? 0 : nSteps - 1;
   int endIndex = fromDown ? nSteps : -1 ;
 
-  while (startIndex != endIndex) // по ступеням
+  // если включаем по ступенькам
+  if (modeByStep)
   {
-    int firstLed = startIndex * stepLed;
-    int lastLed = startIndex * stepLed + stepLed;
-    
-    e_run(firstLed, lastLed, turnOn);
-    delay(STEP_TIME);
+    while (startIndex != endIndex) // по ступеням
+    {
+      int firstLed = startIndex * stepLed;
+      int lastLed = startIndex * stepLed + stepLed;
+      
+      e_run(firstLed, lastLed, turnOn);
+      delay(STEP_TIME);
 
-    startIndex += fromDown ? 1 : -1;
+      startIndex += fromDown ? 1 : -1;
+    }
   }
-
-  if (turnOn)
+  else // вся лестницы сразу
   {
-    //setNextEffect(); // смена эффекта
+    startIndex = 0;
+    endIndex = nLed;
+    e_run(startIndex, endIndex, turnOn);
   }
 }
 
@@ -96,6 +101,17 @@ void workSensors()
   }
 }
 
+
+void showApplyStrip()
+{
+  for (int i=0; i < 2; ++i)
+  {
+    e_run(0, stepLed, true);
+    delay(STEP_TIME / 2);
+    e_run(0, stepLed, false);
+    delay(STEP_TIME / 2);
+  }
+}
 /*
  * Управляет текущими настройками,
  * которые получает с ИК-пульта
@@ -112,26 +128,22 @@ void workRemoteControl()
 
   if (code == Codes::cNone)
     return;
-
-  if (code == cBrightnessUp)
-    strip.setBrightness(strip.getBrightness() + 30);
-  else if (code == cBrightnessDown)
-    strip.setBrightness(strip.getBrightness() - 30);
-  else if (code == cPrevEffect)
+  
+  if (code == cPrevEffect)
     setPrevEffect();
   else if (code == cNextEffect)
     setNextEffect();  
-  else
-  {  
-    curEffect = (effects)code;
-    for (int i=0; i < 2; ++i)
-    {
-      e_run(0, stepLed, true);
-      delay(STEP_TIME);
-      e_run(0, stepLed, false);
-      delay(STEP_TIME);
-    }
+  else if (code == cSetModeByStep)
+    modeByStep = !modeByStep;
+  else if (code == cAnimateAllStair)
+  {
+    e_greenSnake();
+    return;
   }
+  else
+    curEffect = (effects)code;
+
+  showApplyStrip();
 }
 
 void setup() {

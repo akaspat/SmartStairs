@@ -63,7 +63,7 @@ namespace IR
         }
         case 22: // *
         {
-            return cNone;
+            return cSetModeByStep;
         }
         case 13: // #
         {
@@ -71,7 +71,7 @@ namespace IR
         }
         case 24: // вверх
         {
-            return cBrightnessUp;
+            return cNone;
         }
         case 8: // влево
         {
@@ -79,7 +79,7 @@ namespace IR
         }
         case 82: // вниз
         {
-            return cBrightnessDown;
+            return cNone;
         }
         case 90: // вправо
         {
@@ -87,7 +87,7 @@ namespace IR
         }
         case 28: // ок
         {
-            return cNone;
+            return cAnimateAllStair;
         }
         
         default:
