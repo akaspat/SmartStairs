@@ -1,26 +1,27 @@
 #pragma once
 #include "Adafruit_NeoPixel.h"
 
-#define brightPin A0
+#define brightPin A1
 #define WAIT_TIME 1500 // время которое ждем после срабатывания выключения
-#define STEP_TIME 1000 // скорость анимации следующей ступеньки
-#define SNAKE_SPEED 100 // передвижений змеи на 1 светодиод
-#define IR_PIN 9
+#define STEP_TIME 250 // скорость анимации следующей ступеньки
+#define SNAKE_SPEED 5 // передвижений змеи на 1 светодиод
+#define IR_PIN 14
 
 constexpr bool bIsAutoBright = true;
+unsigned long brightnessTimer = 0;
 
-constexpr int motionStart = 2;
-constexpr int motionEnd = 3;
+constexpr int motionStart = 18;
+constexpr int motionEnd = 10;
 static unsigned long stairTimer = 0;
 static unsigned long irTimer = 0;
-constexpr int waitTimeout = 15 * 1000;
+constexpr int waitTimeout = 30 * 1000;
 
-constexpr int nLed = 30;
-constexpr int8_t pinLed = 12;
-constexpr int nSteps = 5;
-constexpr int stepLed = 6;
+constexpr int nLed = 720;
+constexpr int8_t pinLed = 22;
+constexpr int nSteps = 16;
+constexpr int stepLed = 45;
 
-Adafruit_NeoPixel strip(1800, pinLed, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel strip(nLed, pinLed, NEO_GRB + NEO_KHZ800);
 
 enum states
 {

@@ -35,7 +35,6 @@ void e_greenSnake()
     for (int i = 0; i < snakeLen; i += snakeSec)
     {
         uint8_t br = i == 0 ? 10 : brightStep * (i / snakeSec);
-        Serial.println(br);
         uint32_t _color = Adafruit_NeoPixel::ColorHSV(21845, 255, br);
         for (int pixel = 0; pixel < snakeSec; ++pixel)
             snake[i+pixel] = _color;
@@ -132,7 +131,11 @@ void e_run(int from, int to, bool turnOn)
         break;
     case effects::rainbow:
     {
-        e_colorize(from, to, colorCodes[from / nSteps]);
+        Serial.print("AA: "); Serial.println(from / stepLed);
+        int colorNumber = map(from / stepLed, 0, nSteps, 0, 7);
+        Serial.println(colorNumber);
+        e_colorize(from, to, colorCodes[colorNumber]);
+        Serial.println();
         break;
     }
     case effects::randomize:

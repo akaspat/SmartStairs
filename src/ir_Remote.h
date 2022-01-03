@@ -13,12 +13,16 @@ namespace IR
         if (state != states::wait)
             return cNone;
 
+        if (abs(millis() - irTimer) < 500 )
+            return cNone;
+            
+        irTimer = millis();
+
         if (!recv.decode())
             return cNone;
-        
+
         uint16_t value = recv.decodedIRData.command;
         recv.resume();
-        
         switch (value)
         {
         case 25: // 0

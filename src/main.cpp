@@ -20,7 +20,7 @@ void lightStairs(bool fromDown, bool turnOn)
     {
       int firstLed = startIndex * stepLed;
       int lastLed = startIndex * stepLed + stepLed;
-      
+
       e_run(firstLed, lastLed, turnOn);
       delay(STEP_TIME);
 
@@ -29,6 +29,9 @@ void lightStairs(bool fromDown, bool turnOn)
   }
   else // вся лестницы сразу
   {
+    if (curEffect == effects::randomize || curEffect == effects::rainbow)
+        setPrevEffect();
+
     startIndex = 0;
     endIndex = nLed;
     e_run(startIndex, endIndex, turnOn);
@@ -43,11 +46,18 @@ void configureBright()
   if (!bIsAutoBright)
     return;
 
-  if (state == states::wait)
+  //if (state == states::wait)
+  //  return;
+
+  if (abs(millis() - brightnessTimer) < 500)
     return;
 
-  int _bright = analogRead(brightPin);
-  int _mappedBright = 210 - map(_bright, 30, 800, 10, 200);
+  brightnessTimer = millis();
+
+  int _bright = 700 - analogRead(brightPin);
+  long _mappedBright = map(_bright, 100, 700, 10, 200);
+  if (_mappedBright < 10)
+    _mappedBright = 10;
   strip.setBrightness(_mappedBright);
   strip.show();
 }
@@ -77,14 +87,14 @@ void workSensors()
   }
 
   // на лестницу зашли..
-  if (digitalRead(motionStart)) // .. и поднимаются
+  if (digitalRead(motionStart) && state == states::wait) // .. и поднимаются
   {
     Serial.println("начало - Поднимаются");
     lightStairs(true, true); // вкл ступеньки 0 - N
     state = states::toUp;
     stairTimer = millis();
   }
-  else if (digitalRead(motionEnd)) // .. и спускаются
+  else if (digitalRead(motionEnd) && state == states::wait) // .. и спускаются
   {
     Serial.println("начало - Спускаются");
     lightStairs(false,true);// вкл ступеньки N - 0
@@ -104,11 +114,16 @@ void workSensors()
 
 void showApplyStrip()
 {
+  // если режим "включать по ступенькам"
+  // то мигаем только первой ступенькой
+  // если отключен - то первыми двумя
+  int nStepsLight = modeByStep ? 1 : 2;
+  
   for (int i=0; i < 2; ++i)
   {
-    e_run(0, stepLed, true);
+    e_run(0, stepLed * nStepsLight, true);
     delay(STEP_TIME / 2);
-    e_run(0, stepLed, false);
+    e_run(0, stepLed * nStepsLight, false);
     delay(STEP_TIME / 2);
   }
 }
@@ -118,12 +133,6 @@ void showApplyStrip()
  */
 void workRemoteControl()
 {
-  if (millis() - irTimer < 1000)
-  {
-    return;
-  }
-
-  irTimer = millis();
   Codes code = IR::readCode();
 
   if (code == Codes::cNone)
